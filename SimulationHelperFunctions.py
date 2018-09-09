@@ -1,4 +1,7 @@
 import numpy as np
+import requests
+import pandas as pd
+import datetime
 
 def calcSortino(returns, rMar):
     ner = []
@@ -21,3 +24,12 @@ def calcSharpe(dailyReturn, annualBenchReturn):
     exDailyRet = [r - rMar for r in dailyReturn]
     sharpe = np.mean(exDailyRet) / np.std(exDailyRet, ddof=1)
     return sharpe
+
+
+def getHistPriceData(coinTo, ccFrom, limit, exchange):
+    curl = 'https://min-api.cryptocompare.com/data/histoday?fsym={}&tsym={}&limit={}&e={}'\
+            .format(coinTo.upper(), ccFrom.upper(), limit, exchange)
+    data = requests.get(curl, headers={'User-Agent': 'Mozilla/5.0'}).json()['Data']
+    df = pd.DataFrame(data)
+    df['date'] = [datetime.datetime.fromtimestamp(d).strftime('%Y-%m-%d') for d in df.time]
+    return df
