@@ -40,6 +40,8 @@ def getParetoFrontier(x, y):
 #-----Input---------------------------------------------------------
 timeFrame = 30
 numberPortfolio = 1000000
+
+#-----Exemplary
 coinDataStruct = [['XMR', 'Binance', 'BTC'],
                   ['VET', 'Binance', 'BTC'],
                   ['OMG', 'Binance', 'BTC'],
