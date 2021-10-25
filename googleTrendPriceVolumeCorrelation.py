@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-#Author: johannes <info@numex-blog.com>, 01.11.18
-#License: MIT License (http://opensource.org/licenses/MIT)
+# Author: jS1ngle
+# License: MIT License (http://opensource.org/licenses/MIT)
 
 import pandas as pd
 import requests
@@ -9,10 +9,10 @@ from pytrends.request import TrendReq
 import datetime
 from datetime import timedelta
 from scipy.stats.stats import pearsonr
-from SimulationHelperFunctions import getHistPriceData
+from SimulationHelperFunctions import get_hist_price_data
 
 
-#===Input data
+# ===Input data
 timeWindow = 100
 timeWindowMovingAvg = 5
 coinTo = "BTC"
@@ -20,45 +20,45 @@ ccFrom = "EUR"
 exchange = "Kraken"
 keywords = ["bitcoin"]
 
-#===Get raw data
-df = getHistPriceData(coinTo, ccFrom, timeWindow, exchange)
+# ===Get raw data
+df = get_hist_price_data(coinTo, ccFrom, timeWindow, exchange)
 df.columns = [['close', 'high', 'low', 'open', 'time', 'volumefrom', 'volumeto', 'date']]
 
-#===Starting point to have the exact amount of data
+# ===Starting point to have the exact amount of data
 sp = len(df.time[timeWindowMovingAvg-1:])
 
-#===Pass data to pytrend and execute it
+# ===Pass data to pytrend and execute it
 beginDateWindow = datetime.datetime.now().date() - timedelta(days=timeWindow)
 pytrend = TrendReq()
-dataWindow =str(beginDateWindow) + " " + str(datetime.datetime.now().date())
+dataWindow = str(beginDateWindow) + " " + str(datetime.datetime.now().date())
 pytrend.build_payload(keywords, cat=0, timeframe=dataWindow)
-dfTrend = pytrend.interest_over_time()  #using interest over time function
+dfTrend = pytrend.interest_over_time()  # using interest over time function
 dfTrend.columns = ['keyword', 't']
 
-#===Moving average
+# === Moving average
 maTrendPrice = df.close.rolling(center=False, window=timeWindowMovingAvg).mean()
 maTrendVolume = df.volumeto.rolling(center=False, window=timeWindowMovingAvg).mean()
 maTrendGoogle = dfTrend.keyword.rolling(center=False, window=timeWindowMovingAvg).mean()
 
-#===Fatten lists
+# === Flatten lists
 trend = dfTrend.keyword.tolist()
 close = [y for x in df['close'].values.tolist() for y in x]
 volume = [y for x in df['volumeto'].values.tolist() for y in x]
 date = [y for x in df['date'].values.tolist() for y in x]
 
-#===Drop last 3 entries since google is 3 days delayed
+# === Drop last 3 entries since google is 3 days delayed
 close = close[:-3]
 volume = volume[:-3]
 date = date[:-3]
 
-#===Calc Pearson correlation coefficients
+# === Calc Pearson correlation coefficients
 priceCorrelationCoefficient = pearsonr(trend, close)[0]
 volumeCorrelationCoefficient = pearsonr(trend, volume)[0]
 
 print(priceCorrelationCoefficient)
 print(volumeCorrelationCoefficient)
 
-#===Plot data price and trend
+# ===Plot data price and trend
 fig, ax1 = plt.subplots()
 ax1.plot(date, close, 'r', label='Price', linewidth=1.5)
 ax1.set_ylabel('Price in Euro', color='r')
@@ -76,7 +76,7 @@ fig.tight_layout()
 
 fig.savefig('correlating_price_trend.png')
 
-#===Plot volume and trend
+# ===Plot volume and trend
 fig2, ax3 = plt.subplots()
 ax3.plot(date, volume, 'g', label='Volume', linewidth=1.5)
 ax3.set_ylabel('Volume', color='g')

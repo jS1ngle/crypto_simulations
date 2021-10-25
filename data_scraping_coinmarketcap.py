@@ -1,4 +1,4 @@
-#Author: johannes <johannes@numex-blog.com>, 10.06.18
+#Author: jS1ngle
 #License: MIT License (http://opensource.org/licenses/MIT)
 
 import urllib.request
